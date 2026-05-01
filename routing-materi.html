@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Routing Statis & Dinamis — Materi Jaringan Komputer</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0f1e;
+    --surface: #111827;
+    --surface2: #1a2236;
+    --border: rgba(255,255,255,0.07);
+    --text: #e8eaf2;
+    --muted: #8892a4;
+    --accent-blue: #3b82f6;
+    --accent-cyan: #06b6d4;
+    --accent-amber: #f59e0b;
+    --accent-emerald: #10b981;
+    --accent-rose: #f43f5e;
+    --accent-violet: #8b5cf6;
+    --mono: 'Space Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(59,130,246,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59,130,246,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Hero */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 4rem 2rem;
+    overflow: hidden;
+    z-index: 1;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  .hero-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent-cyan);
+    border: 1px solid rgba(6,182,212,0.3);
+    padding: 6px 16px;
+    border-radius: 2px;
+    margin-bottom: 2rem;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .hero h1 {
+    font-family: var(--mono);
+    font-size: clamp(2.2rem, 6vw, 4rem);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  .hero h1 .line-blue { color: var(--accent-blue); }
+  .hero h1 .line-amber { color: var(--accent-amber); }
+
+  .hero-desc {
+    max-width: 560px;
+    color: var(--muted);
+    font-size: 1rem;
+    font-weight: 300;
+    animation: fadeUp 0.6s 0.2s ease both;
+    margin-bottom: 3rem;
+  }
+
+  .hero-nav {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+
+  .hero-nav a {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 1px;
+    padding: 10px 20px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    text-decoration: none;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+
+  .hero-nav a:hover {
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+    background: rgba(59,130,246,0.05);
+  }
+
+  /* Scroll indicator */
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    animation: bounce 2s infinite;
+    color: var(--muted);
+    font-size: 12px;
+    font-family: var(--mono);
+    text-align: center;
+  }
+
+  .scroll-hint::before {
+    content: '';
+    display: block;
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(transparent, var(--accent-blue));
+    margin: 0 auto 8px;
+  }
+
+  /* Main content */
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 2rem 6rem;
+  }
+
+  /* Section title */
+  .section-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent-cyan);
+    margin-bottom: 0.5rem;
+  }
+
+  /* Intro box */
+  .intro-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent-cyan);
+    border-radius: 4px;
+    padding: 2rem 2.5rem;
+    margin-bottom: 5rem;
+  }
+
+  .intro-block h2 {
+    font-family: var(--mono);
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+    color: var(--text);
+  }
+
+  .intro-block p {
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  /* Cards */
+  .card-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 5rem;
+  }
+
+  @media (max-width: 700px) {
+    .card-grid { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+  }
+
+  .card.static:hover { border-color: rgba(59,130,246,0.4); }
+  .card.dynamic:hover { border-color: rgba(16,185,129,0.4); }
+
+  .card-header {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .card-icon {
+    width: 36px; height: 36px;
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .card.static .card-icon { background: rgba(59,130,246,0.12); }
+  .card.dynamic .card-icon { background: rgba(16,185,129,0.12); }
+
+  .card-header-text h3 {
+    font-family: var(--mono);
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+
+  .card.static .card-header-text h3 { color: var(--accent-blue); }
+  .card.dynamic .card-header-text h3 { color: var(--accent-emerald); }
+
+  .card-header-text span {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  .card-body {
+    padding: 1.5rem 2rem;
+  }
+
+  .char-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .char-list li {
+    font-size: 14px;
+    color: var(--muted);
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-weight: 300;
+  }
+
+  .char-list li::before {
+    content: '→';
+    font-family: var(--mono);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .card.static .char-list li::before { color: var(--accent-blue); }
+  .card.dynamic .char-list li::before { color: var(--accent-emerald); }
+
+  /* Protokol pills */
+  .protocol-section {
+    padding: 1.5rem 2rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .protocol-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .pill-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .pill {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 2px;
+    border: 1px solid;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .pill.rip { color: #f59e0b; border-color: rgba(245,158,11,0.3); background: rgba(245,158,11,0.05); }
+  .pill.ospf { color: #8b5cf6; border-color: rgba(139,92,246,0.3); background: rgba(139,92,246,0.05); }
+  .pill.eigrp { color: #06b6d4; border-color: rgba(6,182,212,0.3); background: rgba(6,182,212,0.05); }
+  .pill.bgp { color: #f43f5e; border-color: rgba(244,63,94,0.3); background: rgba(244,63,94,0.05); }
+
+  .pill:hover { transform: scale(1.05); }
+
+  /* Tooltip */
+  .tooltip-box {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 10px 14px;
+    font-family: var(--sans);
+    font-size: 12px;
+    color: var(--text);
+    white-space: nowrap;
+    z-index: 10;
+    font-weight: 300;
+    line-height: 1.5;
+    text-align: left;
+    min-width: 200px;
+    max-width: 260px;
+    white-space: normal;
+  }
+
+  .tooltip-box strong {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 3px;
+    font-size: 13px;
+  }
+
+  .pill:hover .tooltip-box { display: block; }
+
+  /* Pros/cons */
+  .pros-cons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .pros, .cons {
+    padding: 1.25rem 2rem;
+  }
+
+  .pros { border-right: 1px solid var(--border); }
+
+  .pc-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .pros .pc-label { color: var(--accent-emerald); }
+  .cons .pc-label { color: var(--accent-rose); }
+
+  .pc-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .pc-list li {
+    font-size: 12.5px;
+    color: var(--muted);
+    font-weight: 300;
+    display: flex;
+    gap: 8px;
+  }
+
+  .pros .pc-list li::before { content: '+'; color: var(--accent-emerald); font-family: var(--mono); font-weight: 700; }
+  .cons .pc-list li::before { content: '−'; color: var(--accent-rose); font-family: var(--mono); font-weight: 700; }
+
+  /* Comparison table */
+  .section-heading {
+    font-family: var(--mono);
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+  }
+
+  .section-intro {
+    color: var(--muted);
+    font-weight: 300;
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+  }
+
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin-bottom: 5rem;
+  }
+
+  .compare-table thead tr {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .compare-table th {
+    padding: 14px 16px;
+    text-align: left;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  .compare-table th:nth-child(2) { color: var(--accent-blue); }
+  .compare-table th:nth-child(3) { color: var(--accent-emerald); }
+
+  .compare-table tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+
+  .compare-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+  .compare-table td {
+    padding: 14px 16px;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  .compare-table td:first-child {
+    color: var(--text);
+    font-weight: 500;
+    font-size: 13px;
+  }
+
+  .badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 2px;
+    letter-spacing: 0.5px;
+  }
+
+  .badge-blue { background: rgba(59,130,246,0.12); color: var(--accent-blue); border: 1px solid rgba(59,130,246,0.2); }
+  .badge-green { background: rgba(16,185,129,0.12); color: var(--accent-emerald); border: 1px solid rgba(16,185,129,0.2); }
+  .badge-amber { background: rgba(245,158,11,0.12); color: var(--accent-amber); border: 1px solid rgba(245,158,11,0.2); }
+  .badge-rose { background: rgba(244,63,94,0.12); color: var(--accent-rose); border: 1px solid rgba(244,63,94,0.2); }
+
+  /* When to use */
+  .when-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 5rem;
+  }
+
+  @media (max-width: 600px) {
+    .when-grid { grid-template-columns: 1fr; }
+  }
+
+  .when-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2rem;
+  }
+
+  .when-card h4 {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+  }
+
+  .when-card.static h4 { color: var(--accent-blue); }
+  .when-card.dynamic h4 { color: var(--accent-emerald); }
+
+  .use-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .use-list li {
+    font-size: 13.5px;
+    color: var(--muted);
+    font-weight: 300;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .use-list li::before {
+    content: '✓';
+    flex-shrink: 0;
+    font-family: var(--mono);
+    font-size: 11px;
+    margin-top: 3px;
+  }
+
+  .when-card.static .use-list li::before { color: var(--accent-blue); }
+  .when-card.dynamic .use-list li::before { color: var(--accent-emerald); }
+
+  /* Hybrid callout */
+  .hybrid-box {
+    background: linear-gradient(135deg, rgba(139,92,246,0.08), rgba(6,182,212,0.06));
+    border: 1px solid rgba(139,92,246,0.25);
+    border-radius: 4px;
+    padding: 2rem 2.5rem;
+    margin-bottom: 5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hybrid-box::before {
+    content: 'HYBRID';
+    position: absolute;
+    right: -10px; top: -10px;
+    font-family: var(--mono);
+    font-size: 60px;
+    font-weight: 700;
+    color: rgba(139,92,246,0.06);
+    pointer-events: none;
+    line-height: 1;
+  }
+
+  .hybrid-box h3 {
+    font-family: var(--mono);
+    font-size: 0.9rem;
+    color: var(--accent-violet);
+    margin-bottom: 0.75rem;
+  }
+
+  .hybrid-box p {
+    color: var(--muted);
+    font-weight: 300;
+    font-size: 0.95rem;
+    position: relative;
+  }
+
+  /* Visual diagram */
+  .diagram-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2.5rem;
+    margin-bottom: 5rem;
+    text-align: center;
+  }
+
+  .diagram-wrap h3 {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 2rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  svg.routing-diagram { width: 100%; max-width: 700px; }
+
+  /* Footer */
+  footer {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--border);
+    padding: 2rem;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(6px); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .packet {
+    animation: movePacket 3s linear infinite;
+  }
+
+  .packet2 {
+    animation: movePacket2 3s linear 1.5s infinite;
+  }
+
+  @keyframes movePacket {
+    0% { transform: translateX(0); opacity: 0; }
+    5% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateX(220px); opacity: 0; }
+  }
+
+  @keyframes movePacket2 {
+    0% { transform: translateX(0); opacity: 0; }
+    5% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateX(220px); opacity: 0; }
+  }
+
+  .router-pulse {
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  /* Reveal on scroll */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-tag">Materi Jaringan Komputer</div>
+  <h1>
+    <span class="line-blue">Static</span> &amp; <span class="line-amber">Dynamic</span><br>Routing
+  </h1>
+  <p class="hero-desc">
+    Memahami bagaimana data menemukan jalurnya — dari konfigurasi manual hingga protokol otomatis yang menguasai Internet.
+  </p>
+  <nav class="hero-nav">
+    <a href="#definisi">01. Definisi</a>
+    <a href="#static">02. Static Routing</a>
+    <a href="#dynamic">03. Dynamic Routing</a>
+    <a href="#perbandingan">04. Perbandingan</a>
+    <a href="#kapan">05. Kapan Digunakan</a>
+  </nav>
+  <div class="scroll-hint">scroll</div>
+</section>
+
+<main>
+
+  <!-- DEFINISI -->
+  <div id="definisi" class="intro-block reveal">
+    <p class="section-label">01 — Pendahuluan</p>
+    <h2>Apa itu Routing?</h2>
+    <p>
+      Routing adalah proses pengiriman paket data melalui jaringan dari satu perangkat ke perangkat lainnya.
+      Dalam dunia jaringan komputer, terdapat dua metode utama untuk menentukan jalur data: <strong style="color:var(--accent-blue)">Static Routing</strong> dan <strong style="color:var(--accent-emerald)">Dynamic Routing</strong>.
+    </p>
+  </div>
+
+  <!-- DIAGRAM -->
+  <div class="diagram-wrap reveal">
+    <h3>Ilustrasi Pengiriman Paket Data</h3>
+    <svg class="routing-diagram" viewBox="0 0 700 160" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round"/>
+        </marker>
+      </defs>
+
+      <!-- Devices -->
+      <!-- PC A -->
+      <rect x="20" y="60" width="70" height="40" rx="4" fill="rgba(59,130,246,0.1)" stroke="rgba(59,130,246,0.4)" stroke-width="1"/>
+      <text x="55" y="83" text-anchor="middle" font-family="Space Mono,monospace" font-size="10" fill="#3b82f6">PC A</text>
+
+      <!-- Router 1 -->
+      <rect x="160" y="55" width="80" height="50" rx="4" fill="rgba(6,182,212,0.1)" stroke="rgba(6,182,212,0.4)" stroke-width="1"/>
+      <text x="200" y="78" text-anchor="middle" font-family="Space Mono,monospace" font-size="10" fill="#06b6d4">Router</text>
+      <text x="200" y="92" text-anchor="middle" font-family="Space Mono,monospace" font-size="9" fill="#8892a4">01</text>
+      <circle class="router-pulse" cx="200" cy="80" r="24" fill="none" stroke="rgba(6,182,212,0.15)" stroke-width="8"/>
+
+      <!-- Router 2 -->
+      <rect x="380" y="55" width="80" height="50" rx="4" fill="rgba(6,182,212,0.1)" stroke="rgba(6,182,212,0.4)" stroke-width="1"/>
+      <text x="420" y="78" text-anchor="middle" font-family="Space Mono,monospace" font-size="10" fill="#06b6d4">Router</text>
+      <text x="420" y="92" text-anchor="middle" font-family="Space Mono,monospace" font-size="9" fill="#8892a4">02</text>
+      <circle class="router-pulse" cx="420" cy="80" r="24" fill="none" stroke="rgba(6,182,212,0.15)" stroke-width="8" style="animation-delay:0.5s"/>
+
+      <!-- Server -->
+      <rect x="610" y="60" width="70" height="40" rx="4" fill="rgba(16,185,129,0.1)" stroke="rgba(16,185,129,0.4)" stroke-width="1"/>
+      <text x="645" y="83" text-anchor="middle" font-family="Space Mono,monospace" font-size="10" fill="#10b981">Server</text>
+
+      <!-- Lines -->
+      <line x1="90" y1="80" x2="160" y2="80" stroke="rgba(59,130,246,0.3)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="240" y1="80" x2="380" y2="80" stroke="rgba(59,130,246,0.3)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="460" y1="80" x2="610" y2="80" stroke="rgba(59,130,246,0.3)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- Packet -->
+      <g class="packet">
+        <rect x="93" y="73" width="20" height="14" rx="2" fill="#3b82f6" opacity="0.9"/>
+        <text x="103" y="83" text-anchor="middle" font-family="Space Mono,monospace" font-size="7" fill="white">PKT</text>
+      </g>
+      <g class="packet2">
+        <rect x="313" y="73" width="20" height="14" rx="2" fill="#3b82f6" opacity="0.9"/>
+        <text x="323" y="83" text-anchor="middle" font-family="Space Mono,monospace" font-size="7" fill="white">PKT</text>
+      </g>
+
+      <!-- Labels -->
+      <text x="55" y="115" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="11" fill="#8892a4">Pengirim</text>
+      <text x="645" y="115" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="11" fill="#8892a4">Penerima</text>
+      <text x="310" y="65" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="10" fill="#8892a4">Tabel Routing menentukan jalur</text>
+    </svg>
+  </div>
+
+  <!-- STATIC & DYNAMIC CARDS -->
+  <p class="section-label" style="margin-bottom:0.5rem">02–03 — Metode Routing</p>
+  <h2 class="section-heading" id="static">Perbandingan Dua Metode</h2>
+  <p class="section-intro">Klik protokol routing untuk melihat keterangannya.</p>
+
+  <div class="card-grid reveal">
+
+    <!-- Static Card -->
+    <div class="card static">
+      <div class="card-header">
+        <div class="card-icon">🔒</div>
+        <div class="card-header-text">
+          <h3>Static Routing</h3>
+          <span>Konfigurasi manual oleh admin</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="protocol-label">Karakteristik</p>
+        <ul class="char-list">
+          <li>Admin memasukkan rute secara manual ke tabel routing.</li>
+          <li>Jalur tidak berubah otomatis jika ada kegagalan link.</li>
+          <li>Tidak ada pertukaran informasi antar router.</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <p class="pc-label">Kelebihan</p>
+          <ul class="pc-list">
+            <li>Beban CPU sangat ringan</li>
+            <li>Kontrol penuh oleh admin</li>
+            <li>Tidak pakai bandwidth untuk update</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <p class="pc-label">Kekurangan</p>
+          <ul class="pc-list">
+            <li>Tidak praktis untuk jaringan besar</li>
+            <li>Tidak ada failover otomatis</li>
+            <li>Risiko human error tinggi</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dynamic Card -->
+    <div class="card dynamic" id="dynamic">
+      <div class="card-header">
+        <div class="card-icon">⚡</div>
+        <div class="card-header-text">
+          <h3>Dynamic Routing</h3>
+          <span>Otomatis via protokol</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="protocol-label">Karakteristik</p>
+        <ul class="char-list">
+          <li>Router saling bertukar informasi tabel routing secara otomatis.</li>
+          <li>Adaptif: mencari jalur alternatif jika ada link yang putus.</li>
+          <li>Sangat cocok untuk jaringan menengah hingga besar.</li>
+        </ul>
+      </div>
+      <div class="protocol-section">
+        <p class="protocol-label">Protokol Routing Populer</p>
+        <div class="pill-grid">
+          <div class="pill rip">
+            RIP
+            <div class="tooltip-box">
+              <strong>Routing Information Protocol</strong>
+              Penentu jalur: hop count (lompatan). Maks 15 hop. Cocok jaringan kecil.
+            </div>
+          </div>
+          <div class="pill ospf">
+            OSPF
+            <div class="tooltip-box">
+              <strong>Open Shortest Path First</strong>
+              Standar terbuka, sangat cepat. Menggunakan algoritma Dijkstra.
+            </div>
+          </div>
+          <div class="pill eigrp">
+            EIGRP
+            <div class="tooltip-box">
+              <strong>Enhanced IGRP (Cisco)</strong>
+              Milik Cisco, gabungan keunggulan RIP dan OSPF.
+            </div>
+          </div>
+          <div class="pill bgp">
+            BGP
+            <div class="tooltip-box">
+              <strong>Border Gateway Protocol</strong>
+              Protokol utama antar ISP di Internet. Backbone jaringan global.
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <p class="pc-label">Kelebihan</p>
+          <ul class="pc-list">
+            <li>Mudah dikelola di jaringan besar</li>
+            <li>Konvergensi cepat dan otomatis</li>
+            <li>Konfigurasi lebih sederhana</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <p class="pc-label">Kekurangan</p>
+          <ul class="pc-list">
+            <li>Memakan resource CPU & RAM</li>
+            <li>Butuh bandwidth untuk update</li>
+            <li>Keamanan butuh enkripsi tambahan</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- COMPARISON TABLE -->
+  <p class="section-label" style="margin-bottom:0.5rem" id="perbandingan">04 — Tabel</p>
+  <h2 class="section-heading">Static vs Dynamic — Ringkasan</h2>
+  <p class="section-intro">Perbandingan fitur secara langsung.</p>
+
+  <div class="reveal" style="overflow-x:auto; margin-bottom:5rem;">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Fitur</th>
+          <th>Static Routing</th>
+          <th>Dynamic Routing</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Konfigurasi</td>
+          <td><span class="badge badge-blue">Manual oleh Admin</span></td>
+          <td><span class="badge badge-green">Otomatis via Protokol</span></td>
+        </tr>
+        <tr>
+          <td>Skalabilitas</td>
+          <td>Jaringan kecil</td>
+          <td>Jaringan menengah–besar</td>
+        </tr>
+        <tr>
+          <td>Resource CPU/RAM</td>
+          <td><span class="badge badge-green">Rendah</span></td>
+          <td><span class="badge badge-amber">Tinggi</span></td>
+        </tr>
+        <tr>
+          <td>Kebutuhan Bandwidth</td>
+          <td><span class="badge badge-green">Tidak ada</span></td>
+          <td><span class="badge badge-amber">Ada (update rute)</span></td>
+        </tr>
+        <tr>
+          <td>Keamanan</td>
+          <td><span class="badge badge-blue">Tinggi</span></td>
+          <td>Tergantung konfigurasi</td>
+        </tr>
+        <tr>
+          <td>Kemampuan Adaptasi</td>
+          <td><span class="badge badge-rose">Tidak otomatis</span></td>
+          <td><span class="badge badge-green">Otomatis</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- WHEN TO USE -->
+  <p class="section-label" style="margin-bottom:0.5rem" id="kapan">05 — Panduan Praktis</p>
+  <h2 class="section-heading">Kapan Menggunakan Mana?</h2>
+  <p class="section-intro">Pilih metode routing yang tepat sesuai kondisi jaringan kamu.</p>
+
+  <div class="when-grid reveal">
+    <div class="when-card static">
+      <h4>// Gunakan Static Routing jika:</h4>
+      <ul class="use-list">
+        <li>Jaringan kecil (misalnya hanya 2–3 router)</li>
+        <li>Ingin kontrol penuh atas lalu lintas data</li>
+        <li>Router memiliki spesifikasi hardware yang sangat rendah</li>
+        <li>Jalur jaringan tidak sering berubah</li>
+      </ul>
+    </div>
+    <div class="when-card dynamic">
+      <h4>// Gunakan Dynamic Routing jika:</h4>
+      <ul class="use-list">
+        <li>Mengelola jaringan perusahaan besar (Enterprise)</li>
+        <li>Bekerja sebagai penyedia layanan internet (ISP)</li>
+        <li>Topologi jaringan sering berubah</li>
+        <li>Membutuhkan failover otomatis jika jalur putus</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- HYBRID NOTE -->
+  <div class="hybrid-box reveal">
+    <h3>// Catatan: Teknik Hybrid</h3>
+    <p>
+      Dalam praktik di lapangan, seringkali digunakan teknik <strong style="color:var(--accent-violet)">Hybrid</strong> — jaringan utama menggunakan
+      <strong style="color:var(--accent-emerald)">Dynamic Routing</strong>, namun untuk akses ke internet atau server tertentu tetap menggunakan
+      <strong style="color:var(--accent-blue)">Static (Default Route)</strong>. Ini memberikan fleksibilitas sekaligus kontrol yang optimal.
+    </p>
+  </div>
+
+</main>
+
+<footer>
+  <p>Materi Jaringan Komputer &nbsp;·&nbsp; Routing Statis &amp; Dinamis &nbsp;·&nbsp; ©2025</p>
+</footer>
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 80);
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
